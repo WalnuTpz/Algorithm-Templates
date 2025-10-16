@@ -11,7 +11,7 @@ ll fastpow(ll a, ll n) {
 		return 1;
 	if (base == 0)
 		return 0;
-	n = n % (mod - 1);
+	//n = n % (mod - 1);
 	while (n) {
 		if (n & 1)
 			ans = ans * base % mod;
