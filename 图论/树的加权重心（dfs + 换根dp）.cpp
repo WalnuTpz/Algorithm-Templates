@@ -4,6 +4,7 @@ const int N = 110;
 int n, head[N], cnt, w[N], siz[N], u, v;
 long long f[N], ans = 2147483647 * 65535;
 
+//本题代码有误，请慎重采用
 struct Edge {
 	int to, nxt;
 } edge[N * 2];
@@ -16,7 +17,7 @@ void add_edge(int from, int to) {
 }
 
 void dfs(int u, int fa, int dep) { //预处理f[1]和size[]
-	siz[u] = w[u];
+	siz[u] = w[u]; //注意本题是带权重心
 	for (int i = head[u]; i != 0; i = edge[i].nxt) {
 		int to = edge[i].to;
 		if (to != fa) {
@@ -24,7 +25,7 @@ void dfs(int u, int fa, int dep) { //预处理f[1]和size[]
 			siz[u] += siz[to];
 		}
 	}
-	f[1] += w[u];
+	f[1] += w[u] * dep;
 }
 
 void dp(int u, int fa) {

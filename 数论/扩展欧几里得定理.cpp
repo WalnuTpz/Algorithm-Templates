@@ -15,7 +15,7 @@ ll exgcd(ll a, ll b) {
 	ll tmp = x;
 	x = y;
 	y = tmp - a / b * y;
-	return g;
+	return d;
 }
 
 int main() {
