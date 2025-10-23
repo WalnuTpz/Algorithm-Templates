@@ -3,7 +3,7 @@ using namespace std;
 
 using ll = long long;
 
-ll a, mod;
+ll a, mod, x, y;
 
 ll fastpow(ll a, ll n) {
 	ll ans = 1, base = a % mod;
@@ -21,9 +21,42 @@ ll fastpow(ll a, ll n) {
 	return ans;
 }
 
-ll inv(ll a) {
+ll exgcd(ll a, ll b, ll &x, ll &y) {
+	if (b == 0) { //递归结束时an = gcd(a, b), bn = 0
+		x = 1;
+		y = 0;
+		return a;
+	}
+	ll d = exgcd(b, a % b, x, y);
+	ll tmp = x;
+	x = y;
+	y = tmp - a / b * y;
+	return d;
+}
+
+ll inv(ll a) { //只有mod是质数时才能用这个方法
 	return fastpow(a, mod - 2);
 }
+
+ll inv2(ll a) { //mod是任何数时都可以用这个方法
+	ll x, y;
+	ll d = exgcd(a, mod, x, y);
+	return (x % mod + mod) % mod;
+}
+
+ll exgcd(ll a, ll b) {
+	if (b == 0) { //递归结束时an = gcd(a, b), bn = 0
+		x = 1;
+		y = 0;
+		return a;
+	}
+	ll d = exgcd(b, a % b);
+	ll tmp = x;
+	x = y;
+	y = tmp - a / b * y;
+	return d;
+}
+
 
 int main() {
 	ios::sync_with_stdio(0), cin.tie(0);
