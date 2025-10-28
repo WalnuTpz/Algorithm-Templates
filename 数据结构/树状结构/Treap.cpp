@@ -4,68 +4,90 @@ using namespace std;
 #define endl '\n'
 const int maxn = 100010, inf = 2147483647;
 
-int q, num, op, x, root;
+int num, root;
 
 struct node {
 	int val, ls, rs, cnt, siz;
 	//值，左孩子下标，右孩子下标，出现次数，子树大小（包含该节点大小）
+	int rnd; //随机优先级，用于维护堆性质
 } t[maxn];
 
-void add(int x, int v) { //插入某一个数
-	t[x].siz++;
-	if (v == t[x].val) { //已经有这个数，只需把次数加一
-		t[x].cnt++;
-		return;
-	} else if (v < t[x].val) { //v < t[x].val，说明v在x的左子树里
-		if (t[x].ls != 0) //有左子树，则继续递归
-			add(t[x].ls, v);
-		else { //没有左子树，说明v是x的左孩子，添加节点
-			num++;
-			t[num].val = v;
-			t[num].siz = t[num].cnt = 1;
-			t[x].ls = num;
-		}
-	} else { //v > t[x].val，说明v在x的右子树里
-		if (t[x].rs != 0) //有右子树，则继续递归
-			add(t[x].rs, v);
-		else { //没有右子树，说明v是x的右孩子，添加节点
-			num++;
-			t[num].val = v;
-			t[num].siz = t[num].cnt = 1;
-			t[x].rs = num;
-		}
-	}
+void pushup(int x) { //更新该节点的siz
+	t[x].siz = t[t[x].ls].siz + t[t[x].rs].siz + t[x].cnt;
 }
 
-int remove(int x, int v) { //删除某一个数（只将它的出现次数减小1），并返回删除后的根
-	if (x == 0)
-		return 0;
-	if (v < t[x].val) { //v < t[x].val，说明v在x的左子树里，递归删除
-		t[x].ls = remove(t[x].ls, v);
-	} else if (v > t[x].val) { //v > t[x].val，说明v在x的右子树里，递归删除
-		t[x].rs = remove(t[x].rs, v);
-	} else { //已经找到v，进行删除操作
-		t[x].cnt--; //出现次数减一
-		if (t[x].cnt == 0) { //如果删除后出现次数为0，则需要把该节点删去
-			if (t[x].ls == 0 && t[x].rs == 0) //没有左右孩子，返回0作为新的根
-				return 0;
-			else if (t[x].ls == 0) //没有左孩子，返回右孩子作为根
-				return t[x].rs;
-			else if (t[x].rs == 0) //没有右孩子，返回左孩子作为根
-				return t[x].ls;
-			else { //左右孩子都存在，此时将该节点替换为右子树中的最小节点
-				int cur = t[x].rs;
-				while (t[cur].ls != 0) //查找右子树中的最小节点
-					cur = t[cur].ls;
-				t[x].val = t[cur].val;
-				t[x].cnt = t[cur].cnt;
-				t[cur].cnt = 1; //将个数设置为1，让下一步的删除可以将节点直接删除
-				t[x].rs = remove(t[x].rs, t[cur].val); //删除右子树中的最小节点
-			}
-		}
+void lrotate(int &x) { //左旋
+	int cur = t[x].rs; //cur 是 x 的右孩子
+	t[x].rs = t[cur].ls; //x 的新右孩子是 cur 的左孩子
+	t[cur].ls = x; //cur 的新左孩子是 x
+	t[cur].siz = t[x].siz; //cur 继承 x 的 siz
+	pushup(x); //更新 x (现在是 cur 的左孩子) 的 siz
+	x = cur; //父节点指向 x 的指针现在指向 cur
+}
+
+void rrotate(int &x) { //右旋
+	int cur = t[x].ls; //cur 是 x 的左孩子
+	t[x].ls = t[cur].rs; //x 的新左孩子是 cur 的右孩子
+	t[cur].rs = x; //cur 的新右孩子是 x
+	t[cur].siz = t[x].siz; //cur 继承 x 的 siz
+	pushup(x); //更新 x (现在是 cur 的右孩子) 的 siz
+	x = cur; //父节点指向 x 的指针现在指向 cur
+}
+
+void add(int &x, int v) { //插入某一个数 (Treap 版本)
+	if (x == 0) { //节点不存在，添加节点
+		num++;
+		x = num;
+		t[x].val = v;
+		t[x].cnt = 1;
+		t[x].siz = 1;
+		t[x].rnd = rand(); //赋予随机优先级
+		return;
 	}
-	t[x].siz = t[x].cnt + t[t[x].ls].siz + t[t[x].rs].siz; //更新该节点的siz
-	return x;
+	if (v == t[x].val) { //已经有这个数，只需把次数加一
+		t[x].cnt++;
+	} else if (v < t[x].val) { //v < t[x].val，说明v在x的左子树里
+		add(t[x].ls, v); //继续递归
+		if (t[t[x].ls].rnd < t[x].rnd) //破坏了堆性质 (子<父)
+			rrotate(x); //右旋
+	} else { //v > t[x].val，说明v在x的右子树里
+		add(t[x].rs, v); //继续递归
+		if (t[t[x].rs].rnd < t[x].rnd) //破坏了堆性质
+			lrotate(x); //左旋
+	}
+	pushup(x); //在递归返回时更新 siz
+}
+
+void remove(int &x, int v) { //删除某一个数（只将它的出现次数减小1）
+	if (x == 0)
+		return; //没有找到
+	if (v == t[x].val) { //已经找到v，进行删除操作
+		if (t[x].cnt > 1) { //出现次数 > 1
+			t[x].cnt--; //出现次数减一
+			pushup(x);
+			return;
+		}
+		//如果删除后出现次数为0，则需要把该节点删去
+		if (t[x].ls == 0 || t[x].rs == 0) { //没有左右孩子或只有一边孩子
+			x = t[x].ls + t[x].rs; //返回存在的孩子（或0）作为新的根
+		} else if (t[t[x].ls].rnd < t[t[x].rs].rnd) { //左孩子优先级高 (rnd小)
+			rrotate(x); //右旋，将 x 旋下去
+			remove(t[x].rs, v); //继续在 x 的(新)右子树中删除 v
+			pushup(x); //更新 siz
+		} else { //右孩子优先级高
+			lrotate(x); //左旋
+			remove(t[x].ls, v); //继续在 x 的(新)左子树中删除 v
+			pushup(x); //更新 siz
+		}
+	} else if (v < t[x].val) { //v < t[x].val，说明v在x的左子树里，递归删除
+		remove(t[x].ls, v);
+		if (x != 0)
+			pushup(x); //更新该节点的siz
+	} else { //v > t[x].val，说明v在x的右子树里，递归删除
+		remove(t[x].rs, v);
+		if (x != 0)
+			pushup(x); //更新该节点的siz
+	}
 }
 
 int querymin(int x) { //查询最小值
@@ -83,8 +105,6 @@ int querymax(int x) { //查询最大值
 }
 
 int search(int x, int v) { //查找某一个数是否存在
-	if (x == 0)
-		return 0;
 	if (v == t[x].val) //找到了
 		return 1;
 	else if (v < t[x].val) //v < t[x].val，往左子树继续查找
@@ -103,6 +123,9 @@ void travel(int x) { //中序遍历整棵树
 
 int querylst(int x, int v, int ans) { //查找某个数的前序
 	//ans表示目前查找到的小于v的数的最大值
+	if (x == 0)
+		return ans; //没找到，返回上一层的ans
+
 	if (t[x].val >= v) { //t[x].val >= v，此时小于v的数只可能在左子树中
 		if (t[x].ls == 0) //没有左子树，直接返回ans
 			return ans;
@@ -120,6 +143,9 @@ int querylst(int x, int v, int ans) { //查找某个数的前序
 
 int querynxt(int x, int v, int ans) { //查找某个数的后续
 	//同上，注释省略
+	if (x == 0)
+		return ans;
+
 	if (t[x].val <= v) {
 		if (t[x].rs == 0)
 			return ans;
@@ -163,37 +189,43 @@ int querykth(int x, int rk) { //查找某个排名对应的数
 
 int main() {
 	ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+
+	srand(time(0)); // 初始化随机数种子
+
+	int q, op, x; // q 为操作次数
 	cin >> q;
+
+	root = 0; // 树根初始化为 0 (空)
+	num = 0;  // 节点计数器初始化为 0
+
 	while (q--) {
-		cin >> op >> x;
-		if (op == 1)
-			cout << queryrk(1, x) + 1 << endl;
-		else if (op == 2)
-			cout << querykth(1, x) << endl;
-		else if (op == 3)
-			cout << querylst(1, x, -inf) << endl;
-		else if (op == 4)
-			cout << querynxt(1, x, inf) << endl;
-		else if (op == 5) {
-			if (num == 0) {
-				num++;
-				t[num].val = x;
-				t[num].siz = t[num].cnt = 1;
-			} else
-				add(1, x);
-		} else if (op == 6)
-			remove(1, x);
-		else if (op == 7)
-			cout << querymin(1) << endl;
-		else if (op == 8)
-			cout << querymax(1) << endl;
-		else if (op == 9) {
-			if (search(1, x) == 1)
+		cin >> op;
+		if (op >= 1 && op <= 6 || op == 9)
+			cin >> x;
+		if (op == 1) { // 插入
+			add(root, x);
+		} else if (op == 2) { // 删除
+			remove(root, x);
+		} else if (op == 3) { // 查找前驱
+			cout << querylst(root, x, -inf) << endl;
+		} else if (op == 4) { // 查找后继
+			cout << querynxt(root, x, inf) << endl;
+		} else if (op == 5) { // 查找排名
+			cout << queryrk(root, x) + 1 << endl;
+		} else if (op == 6) { // 查找第k小
+			cout << querykth(root, x) << endl;
+		} else if (op == 7) { // 查询最小值
+			cout << querymin(root) << endl;
+		} else if (op == 8) { // 查询最大值
+			cout << querymax(root) << endl;
+		} else if (op == 9) { // 查询是否存在
+			cin >> x; // 这个操作需要额外读入 x
+			if (search(root, x) == 1)
 				cout << "Yes" << endl;
 			else
 				cout << "No" << endl;
-		} else {
-			travel(1);
+		} else if (op == 10) { // 中序遍历
+			travel(root);
 			cout << endl;
 		}
 	}
