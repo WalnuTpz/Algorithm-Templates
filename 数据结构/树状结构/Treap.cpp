@@ -125,7 +125,6 @@ int querylst(int x, int v, int ans) { //查找某个数的前序
 	//ans表示目前查找到的小于v的数的最大值
 	if (x == 0)
 		return ans; //没找到，返回上一层的ans
-
 	if (t[x].val >= v) { //t[x].val >= v，此时小于v的数只可能在左子树中
 		if (t[x].ls == 0) //没有左子树，直接返回ans
 			return ans;
@@ -145,13 +144,11 @@ int querynxt(int x, int v, int ans) { //查找某个数的后续
 	//同上，注释省略
 	if (x == 0)
 		return ans;
-
 	if (t[x].val <= v) {
 		if (t[x].rs == 0)
 			return ans;
 		else
 			return querynxt(t[x].rs, v, ans);
-
 	} else {
 		ans = min(t[x].val, ans);
 		if (t[x].ls == 0)
@@ -189,15 +186,9 @@ int querykth(int x, int rk) { //查找某个排名对应的数
 
 int main() {
 	ios::sync_with_stdio(0), cin.tie(0), cout.tie(0);
-
 	srand(time(0)); // 初始化随机数种子
-
 	int q, op, x; // q 为操作次数
 	cin >> q;
-
-	root = 0; // 树根初始化为 0 (空)
-	num = 0;  // 节点计数器初始化为 0
-
 	while (q--) {
 		cin >> op;
 		if (op >= 1 && op <= 6 || op == 9)
