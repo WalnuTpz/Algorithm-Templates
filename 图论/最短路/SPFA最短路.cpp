@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 const int maxn = 10010, INF = 2e9;
-int n, m, s, cnt, u, v, w, head[maxn], vis[maxn], num[maxn], flag;
+int n, m, s, u, v, w, vis[maxn], num[maxn], flag;
 long long dis[maxn];
 
 vector<pair<int, int>> g[maxn];

@@ -1,24 +1,20 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int N = 10010;
+
+const int maxn = 10010;
+
 int n, m, u, v, w;
 
-struct edge { //不用结构体也可以用pair<int, int>
-	int to, dis;
-};
-vector<edge> g[N];
+vector<pair<int, int>> g[maxn]; //除了pair也可以使用struct
 
 int main() {
 	cin >> n >> m;
 	for (int i = 1; i <= m; i++) {
 		cin >> u >> v >> w;
-		g[u].push_back((edge) {
-			u, w
-		});
+		g[u].push_back({v, w});
 	}
 
-	for (int i = 0; i < g[u].size(); i++) {
-		int v = g[u][i].to, w = g[u][i].dis;
+	for (auto &[v, w] : g[u]) {
 		//遍历
 	}
 	return 0;
