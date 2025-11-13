@@ -5,7 +5,7 @@ using namespace std;
 using ll = long long;
 const int maxn = 20010;
 
-int n, m, u, v, root, rootson, idx, ans;
+int n, m, u, v, idx, ans;
 int dfn[maxn], low[maxn], isbridge[maxn];
 
 vector<pair<int, int>> g[maxn];
@@ -32,12 +32,9 @@ int main() {
 		g[u].push_back({v, i});
 		g[v].push_back({u, i});
 	}
-	for (int i = 1; i <= n; i++) {
-		if (!dfn[i]) { //dfn[i] == 0，说明是一个单独的连通快，进行dfs
-			root = i;
+	for (int i = 1; i <= n; i++)
+		if (!dfn[i]) //dfn[i] == 0，说明是一个单独的连通快，进行dfs
 			tarjan(i, 0);
-		}
-	}
 	for (int i = 1; i <= m; i++) {
 		if (isbridge[i]) {
 			ans++;

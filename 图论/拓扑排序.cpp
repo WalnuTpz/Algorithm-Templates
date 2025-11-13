@@ -17,7 +17,7 @@ void add_edge(int from, int to) {
 	head[from] = cnt;
 }
 
-void topu() { //ÍØÆËÅÅÐò
+void topo() { //ÍØÆËÅÅÐò
 	for (int i = 1; i <= n; i++)
 		if (in[i] == 0)
 			q.push(i);
@@ -41,6 +41,6 @@ int main() {
 		add_edge(u, v);
 		in[v]++;
 	}
-	topu();
+	topo();
 	return 0;
 }

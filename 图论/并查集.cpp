@@ -1,7 +1,9 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int N = 5010;
-int n, m, p, x, y, fa[N];
+
+const int maxn = 5010;
+
+int n, m, p, x, y, fa[maxn], sz[maxn];
 
 int find(int x) { //找到对应集合树的根节点（祖先节点）
 	if (fa[x] != x) //fa[x] == x 时说明是根
@@ -9,18 +11,25 @@ int find(int x) { //找到对应集合树的根节点（祖先节点）
 	return fa[x];
 }
 
-void uni(int x, int y) { //合并
+void merge(int x, int y) { //合并
 	int r1 = find(x), r2 = find(y);
-	fa[r2] = r1;
+	if (r1 != r2) {
+		if (sz[r1] < sz[r2])
+			swap(r1, r2);
+		fa[r2] = r1;
+		sz[r1] += sz[r2]; //更大的并查集吞并了更小的并查集
+	}
 }
 
 int main() {
 	cin >> n >> m >> p;
-	for (int i = 1; i <= n; i++)
+	for (int i = 1; i <= n; i++) {
 		fa[i] = i;
+		sz[i] = 1;
+	}
 	for (int i =  1; i <= m; i++) {
 		cin >> x >> y;
-		uni(x, y);
+		merge(x, y);
 	}
 	for (int i = 1; i <= p; i++) {
 		cin >> x >> y;
