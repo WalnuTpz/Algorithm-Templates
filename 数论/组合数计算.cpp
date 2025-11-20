@@ -6,9 +6,9 @@ const int N = 110;
 int n, m;
 ll c[N][N], ans;
 
-ll C(ll n, ll r) {
+ll C(ll n, ll m) {
 	ll ans = 1;
-	for (ll i = 1; i <= r; ++i) {
+	for (ll i = 1; i <= m; ++i) {
 		ans *= n - i + 1;
 		ans /= i;
 	}

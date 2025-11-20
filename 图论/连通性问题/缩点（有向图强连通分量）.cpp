@@ -5,7 +5,7 @@ using namespace std;
 using ll = long long;
 const int maxn = 10010, maxm = 100010;
 
-int n, m, u[maxn], v[maxn], a[maxn], idx, ans;
+int n, m, u[maxn], v[maxn], a[maxn], idx, cnt, ans;
 int dfn[maxn], low[maxn], instk[maxn], scc[maxn];
 int in[maxn], dp[maxn];
 
@@ -24,15 +24,16 @@ void tarjan(int u) {
 			low[u] = min(low[u], dfn[v]);
 	}
 	if (low[u] == dfn[u]) { //找到了一个SCC
+		cnt++; //新的SCC编号
 		while (st.top() != u) {
 			instk[st.top()] = 0;
-			scc[st.top()] = u;
+			scc[st.top()] = cnt;
 			a[u] += a[st.top()];
 			st.pop(); //将u自己也出栈
 		}
 		st.pop();
 		instk[u] = 0;
-		scc[u] = u;
+		scc[u] = cnt;
 	}
 }
 
@@ -96,4 +97,7 @@ int main() {
 
 在缩点进行完成后，再重新建一次图：对于图中的每条边，如果它们属于同一个SCC，则忽略；反之加入新的图g2。此时得到的新图是一个有向无环图，
 再使用(拓扑排序 + dp)求出最大路径权值和即可
+
+还有一点需要注意的是，因为栈的先进后出性质，在新的图g2中拓扑排序中编号较小的顶点在dfs时是先入栈的，所以也是后出栈的，
+所以它们对应的SCC编号是比较大的。也就是拓扑序和SCC编号是相反的。
 */

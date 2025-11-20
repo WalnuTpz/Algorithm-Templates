@@ -1,25 +1,27 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-const int N = 500010;
-int n, m, a[N], t[N], op, x, y; //单点修改，区间查询
-//t[x]保存以x为根的子数中叶子节点值的和
+#define endl '\n'
+using ll = long long;
+const int maxn = 200010;
+
+int n, m, op, x, y; //单点修改，区间查询
+ll a[maxn], t[maxn];//t[x]保存以x为根的子数中叶子节点值的和
 
 int lowbit(int x) {
 	return x & (-x);
 }
 
-void add(int x, int k) { //a[x] += k，并更新t数组
+void add(int x, ll k) { //a[x] += k，并更新t数组
 	for (int i = x; i <= n; i += lowbit(i)) { //i的父亲节点是i + lowbit(i)
 		t[i] += k;
 	}
 }
 
-int sum(int x) { //求a[1]~a[x]的前缀和
-	int sum = 0;
-	for (int i = x; i > 0; i -= lowbit(i)) { //一直进行i - lowbit(i)就可以得到原数组的前缀和
+ll sum(int x) { //求a[1]~a[x]的前缀和
+	ll sum = 0;
+	for (int i = x; i > 0; i -= lowbit(i))//一直进行i - lowbit(i)就可以得到原数组的前缀和
 		sum += t[i];
-	}
 	return sum;
 }
 
@@ -36,7 +38,7 @@ int main() {
 		if (op == 1) {
 			add(x, y);
 		} else if (op == 2) { //实际上单点查询的话就让x = y就好了
-			int sum1 = sum(x - 1), sum2 = sum(y);
+			ll sum1 = sum(x - 1), sum2 = sum(y);
 			cout << sum2 - sum1 << endl;
 		}
 	}

@@ -5,8 +5,8 @@ using ll = long long;
 using pii = pair<ll, ll>;
 const int maxn = 100010, inf = 2147483647;
 
-int n, m, s, cnt, u, v, w,  vis[N];
-ll dis[N];
+int n, m, s, u, v, w,  vis[maxn];
+ll dis[maxn];
 
 vector<pii> g[maxn];
 priority_queue<pii, vector<pii>, greater<pii>> pq;
